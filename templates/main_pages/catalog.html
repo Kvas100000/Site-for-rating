@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | RATE.IT{% endblock %}
+
+{% block content %}
+<div class="row align-items-end mb-4">
+    <div class="col-md-8">
+        <h1 class="fw-bold">{{ title }}</h1>
+        <p class="text-muted mb-0">Каталог в категории «{{ title }}»</p>
+    </div>
+    
+    <div class="col-md-4 text-md-end">
+        <div class="btn-group">
+            <a href="?sort=new" class="btn btn-sm btn-outline-dark">Новые</a>
+            <a href="?sort=rating" class="btn btn-sm btn-outline-dark">Топ</a>
+        </div>
+        {% if user.is_staff %}
+            <a href="{% url 'main:'|add:category|add:'_add' %}" class="btn btn-sm btn-success ms-2">
+                <i class="fa-solid fa-plus"></i>
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<hr class="mb-5">
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+    {% for item in items %}
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm">
+            {% if item.poster %}
+                <img src="{{ item.poster.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 350px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-light text-dark">{{ item.release_date|date:"Y" }}</span>
+                    {% if item.get_average_score %}
+                        <span class="text-warning fw-bold"><i class="fa-solid fa-star"></i> {{ item.get_average_score|floatformat:1 }}</span>
+                    {% endif %}
+                </div>
+                <h5 class="card-title fw-bold">{{ item.title }}</h5>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-3">
+                <a href="{% url 'main:content_detail' item.slug %}" class="btn btn-primary btn-sm w-100 shadow-sm">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <h3 class="text-muted">Тут пока ничего нет...</h3>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

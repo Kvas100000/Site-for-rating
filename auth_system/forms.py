@@ -11,5 +11,5 @@ class MyUserCreationForm(UserCreationForm):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'info', 'birth_date','profile_pic'] #добавил
+        fields = ['first_name', 'last_name', 'email', 'info', 'birth_date','profile_pic']
         widgets = {'profile_pic':forms.FileInput()}

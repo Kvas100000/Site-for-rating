@@ -94,6 +94,7 @@ class Rating(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='user_ratings')
     score = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)],verbose_name = "Оценка")
     review = models.TextField(blank = True ,verbose_name='Отзыв')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
     class Meta:
         unique_together = ('user', 'content')

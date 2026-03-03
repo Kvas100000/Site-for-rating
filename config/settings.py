@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'auth_system',
     'main_pages',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +118,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 
+LOGOUT_REDIRECT_URL = 'auth_system:login'
+LOGIN_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'auth_system.User'
 
 STATIC_URL = 'static/'
