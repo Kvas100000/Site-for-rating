@@ -3,176 +3,175 @@
 {% block title %}{{ item.title }} | RATE.IT{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container">
     <div class="row g-5">
 
         <div class="col-md-4">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                {% if item.poster %}
-                    <img src="{{ item.poster.url }}" class="img-fluid" alt="{{ item.title }}">
-                {% endif %}
-
-                <div class="card-body bg-dark text-white text-center py-4">
-                    <h2 class="display-6 fw-bold text-warning mb-0">
-                        <i class="fa-solid fa-star"></i> {{ item.get_average_score }}
-                    </h2>
-                    <p class="small text-uppercase mb-0 opacity-75">Средняя оценка</p>
+            <div class="position-sticky" style="top: 100px;">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+                    {% if item.poster %}
+                        <img src="{{ item.poster.url }}" class="img-fluid" alt="{{ item.title }}">
+                    {% endif %}
+                    <div class="card-body bg-dark text-center py-4">
+                        <div class="display-4 fw-bold text-warning mb-0">{{ item.get_average_score }}</div>
+                        <p class="text-white-50 small text-uppercase mb-0 ls-1">Рейтинг Rate.It</p>
+                    </div>
                 </div>
 
                 {% if user.is_staff %}
-                <div class="card-footer d-grid gap-2 bg-light border-0">
+                <div class="d-grid gap-2 mb-4">
                     {% if item.category == 'MOVIE' %}
-                        <a href="{% url 'main:movie_edit' item.slug %}" class="btn btn-outline-dark btn-sm">Редактировать</a>
+                        <a href="{% url 'main:movie_edit' item.slug %}" class="btn btn-outline-dark"><i class="fa-solid fa-pen"></i> Редактировать</a>
                     {% elif item.category == 'GAME' %}
-                        <a href="{% url 'main:game_edit' item.slug %}" class="btn btn-outline-dark btn-sm">Редактировать</a>
+                        <a href="{% url 'main:game_edit' item.slug %}" class="btn btn-outline-dark"><i class="fa-solid fa-pen"></i> Редактировать</a>
                     {% elif item.category == 'SERIES' %}
-                        <a href="{% url 'main:series_edit' item.slug %}" class="btn btn-outline-dark btn-sm">Редактировать</a>
+                        <a href="{% url 'main:series_edit' item.slug %}" class="btn btn-outline-dark"><i class="fa-solid fa-pen"></i> Редактировать</a>
                     {% endif %}
-                    <a href="{% url 'main:content_delete' item.slug %}" class="btn btn-link text-danger btn-sm">Удалить из базы</a>
+
+                    <a href="{% url 'main:content_delete' item.slug %}" class="btn btn-outline-danger">
+                        <i class="fa-solid fa-trash"></i> Удалить объект
+                    </a>
                 </div>
                 {% endif %}
             </div>
         </div>
 
         <div class="col-md-8">
-            <h1 class="display-4 fw-bold mb-1">{{ item.title }}</h1>
-            <p class="text-muted fs-5 mb-4">{{ item.release_year }} год · {{ item.get_category_display }}</p>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-warning text-dark">{{ item.get_category_display }}</span>
+                <span class="text-muted fw-bold">{{ item.release_year }} год</span>
+            </div>
+            <h1 class="display-3 fw-bold mb-4">{{ item.title }}</h1>
 
-            <div class="mb-4">
+            <div class="mb-5">
                 {% for genre in item.genres.all %}
-                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-dark border px-3 py-2 me-1">
-                        {{ genre.name }}
-                    </span>
+                    <span class="badge rounded-pill bg-light text-dark border px-3 py-2 me-2">{{ genre.name }}</span>
                 {% endfor %}
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-borderless align-middle">
-                    <tbody class="fs-6">
-
+            <h5 class="fw-bold border-start border-4 border-warning ps-3 mb-3">О проекте</h5>
+            <div class="table-responsive mb-5">
+                <table class="table table-borderless fs-6">
+                    <tbody>
                         {% if item.movie %}
-                            <tr>
-                                <th class="text-muted fw-normal" style="width: 30%;">Режиссер</th>
-                                <td class="fw-bold">{{ item.movie.director }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted fw-normal">В ролях</th>
-                                <td>{{ item.movie.actors }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted fw-normal">Длительность</th>
-                                <td>{{ item.movie.duration }} мин.</td>
-                            </tr>
-
+                            <tr><td class="text-muted" width="30%">Режиссер:</td><td class="fw-bold">{{ item.movie.director }}</td></tr>
+                            <tr><td class="text-muted">В ролях:</td><td>{{ item.movie.actors }}</td></tr>
+                            <tr><td class="text-muted">Время:</td><td>{{ item.movie.duration }} мин.</td></tr>
                         {% elif item.game %}
-                            <tr>
-                                <th class="text-muted fw-normal" style="width: 30%;">Разработчик</th>
-                                <td class="fw-bold">{{ item.game.developer }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted fw-normal">Издатель</th>
-                                <td>{{ item.game.publisher }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted fw-normal">Системные требования</th>
-                                <td><small class="text-secondary">{{ item.game.system_requirements|linebreaksbr }}</small></td>
-                            </tr>
-
+                            <tr><td class="text-muted" width="30%">Разработчик:</td><td class="fw-bold">{{ item.game.developer }}</td></tr>
+                            <tr><td class="text-muted">Издатель:</td><td>{{ item.game.publisher }}</td></tr>
+                            <tr class="bg-light rounded"><td class="text-muted p-3">Железо:</td><td class="p-3 small">{{ item.game.system_requirements|linebreaksbr }}</td></tr>
                         {% elif item.series %}
-                            <tr>
-                                <th class="text-muted fw-normal" style="width: 30%;">Статус</th>
-                                <td>
-                                    <span class="badge bg-{{ item.series.get_status_color }}">
-                                        {{ item.series.get_status_display }}
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted fw-normal">Сезонов</th>
-                                <td class="fw-bold">{{ item.series.seasons_count }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted fw-normal">Режиссер</th>
-                                <td>{{ item.series.director }}</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted fw-normal">В ролях</th>
-                                <td>{{ item.series.actors }}</td>
-                            </tr>
+                            <tr><td class="text-muted">Статус:</td><td><span class="badge bg-{{ item.series.get_status_color }}">{{ item.series.get_status_display }}</span></td></tr>
+                            <tr><td class="text-muted">Сезонов:</td><td class="fw-bold">{{ item.series.seasons_count }}</td></tr>
+                            <tr><td class="text-muted">В ролях:</td><td>{{ item.series.actors }}</td></tr>
                         {% endif %}
                     </tbody>
                 </table>
             </div>
 
-            <div class="mt-4">
-                <h5 class="fw-bold">О чем это:</h5>
-                <p class="text-dark lead" style="white-space: pre-line;">{{ item.description }}</p>
+            <div class="mb-5">
+                <h5 class="fw-bold mb-3">Сюжет</h5>
+                <p class="lead text-secondary" style="white-space: pre-line;">{{ item.description }}</p>
             </div>
 
             {% if item.scrins.all %}
-            <div class="mt-5">
-                <h5 class="fw-bold mb-3">Скриншоты / Кадры</h5>
+            <div class="mb-5">
+                <h5 class="fw-bold mb-3">Кадры и Скриншоты</h5>
                 <div class="row g-2">
                     {% for scrin in item.scrins.all %}
-                        <div class="col-4 col-md-3">
-                            <a href="{{ scrin.image.url }}" target="_blank">
-                                <img src="{{ scrin.image.url }}" class="img-fluid rounded shadow-sm hover-opacity" style="height: 120px; object-fit: cover; width: 100%;">
-                            </a>
-                        </div>
+                    <div class="col-4">
+                        <img src="{{ scrin.image.url }}" class="img-fluid rounded shadow-sm" style="height: 150px; width: 100%; object-fit: cover;">
+                    </div>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
-        </div>
-    </div>
+            <hr class="my-5">
 
-    <hr class="my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <h3 class="fw-bold mb-4">Отзывы пользователей <span class="badge bg-light text-dark ms-2">{{ item.ratings.count }}</span></h3>
+            <div id="rating-section" class="mb-5">
+                <h3 class="fw-bold mb-4">Ваше мнение</h3>
 
-            {% if user.is_authenticated %}
-            <div class="card border-0 bg-white shadow-sm p-4 mb-5 rounded-4">
-                <form action="{% url 'main:add_rating' item.slug %}" method="post">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label fw-bold small">Оценка</label>
-                            <select name="score" class="form-select border-0 bg-light">
-                                {% for i in "1234567891" %}
-                                    <option value="{{ forloop.counter }}" {% if user_rating.score == forloop.counter %}selected{% endif %}>
-                                        {{ forloop.counter }}
-                                    </option>
-                                {% endfor %}
-                                <option value="10" {% if user_rating.score == 10 %}selected{% endif %}>10</option>
-                            </select>
+                {% if user.is_authenticated %}
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-light">
+                    <form action="{% url 'main:add_rating' item.slug %}" method="post">
+                        {% csrf_token %}
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="status" value="PLANNING" id="status_plan"
+                                   {% if user_rating.status == 'PLANNING' %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="btn btn-outline-primary py-2 fw-bold" for="status_plan">В планы</label>
+
+                            <input type="radio" class="btn-check" name="status" value="WATCHED" id="status_watched"
+                                   {% if user_rating.status == 'WATCHED' %}checked{% endif %} onchange="toggleReview(true)">
+                            <label class="btn btn-outline-success py-2 fw-bold" for="status_watched">Видел</label>
+
+                            <input type="radio" class="btn-check" name="status" value="FAVORITE" id="status_fav"
+                                   {% if user_rating.status == 'FAVORITE' %}checked{% endif %} onchange="toggleReview(true)">
+                            <label class="btn btn-outline-danger py-2 fw-bold" for="status_fav">Топ</label>
                         </div>
-                        <div class="col-md-10 mb-3">
-                            <label class="form-label fw-bold small">Ваш отзыв (необязательно)</label>
-                            <textarea name="review" class="form-control border-0 bg-light" rows="3">{{ user_rating.review }}</textarea>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-warning fw-bold px-4">Отправить</button>
-                    </div>
-                </form>
-            </div>
-            {% endif %}
-
-            {% for r in reviews %}
-            <div class="mb-4 pb-4 border-bottom">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-bold fs-5">{{ r.user.username }}</span>
-                    <span class="badge bg-dark fs-6">{{ r.score }} / 10</span>
+                    </form>
                 </div>
-                <p class="text-secondary">{{ r.review }}</p>
-                <small class="text-muted">{{ r.created_at|date:"d E Y" }}</small>
+
+                <div id="review-form-container" class="card border-0 shadow-sm rounded-4 p-4 {% if user_rating.status == 'PLANNING' or not user_rating %}d-none{% endif %}">
+                    <form action="{% url 'main:add_rating' item.slug %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" id="hidden_status" value="{{ user_rating.status|default:'WATCHED' }}">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Оценка</label>
+                                {{ rating_form.score }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold">Отзыв</label>
+                                {{ rating_form.review }}
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-dark px-4 rounded-pill fw-bold">Сохранить отзыв</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="alert alert-dark rounded-4 text-center py-4">
+                    Войдите, чтобы поставить оценку. <a href="{% url 'auth_system:login' %}" class="alert-link">Войти</a>
+                </div>
+                {% endif %}
             </div>
-            {% empty %}
-            <p class="text-muted text-center py-4">Здесь пока нет отзывов. Будьте первым!</p>
-            {% endfor %}
+
+            <div class="reviews-list">
+                {% for r in reviews %}
+                <div class="mb-4 pb-4 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                {{ r.user.username|slice:":1"|upper }}
+                            </div>
+                            <span class="fw-bold">{{ r.user.username }}</span>
+                        </div>
+                        {% if r.score %}
+                        <span class="badge bg-warning text-dark fs-6">{{ r.score }} / 10</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-secondary italic mb-1">"{{ r.review }}"</p>
+                    <small class="text-muted">{{ r.created_at|date:"d E Y" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+
         </div>
     </div>
 </div>
+
+<script>
+function toggleReview(show) {
+    const container = document.getElementById('review-form-container');
+    const hiddenStatus = document.getElementById('hidden_status');
+    const selectedStatus = document.querySelector('input[name="status"]:checked').value;
+    if (show) {
+        container.classList.remove('d-none');
+        hiddenStatus.value = selectedStatus;
+    }
+}
+</script>
 {% endblock %}

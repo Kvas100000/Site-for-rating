@@ -90,18 +90,18 @@ class Screenshot(models.Model):
         return f"Скриншот для {self.content.title}"
 
 class Rating(models.Model):
-    content = models.ForeignKey(Content,on_delete=models.CASCADE,related_name='ratings')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='user_ratings')
-    score = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)],verbose_name = "Оценка")
-    review = models.TextField(blank = True ,verbose_name='Отзыв')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+    class Status(models.TextChoices):
+        WATCHED = 'WATCHED', 'Просмотрено'
+        PLANNING = 'PLANNING', 'В планах'
+        FAVORITE = 'FAVORITE', 'Любимое'
+
+    content = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_ratings')
+    score = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)],verbose_name="Оценка",null=True, blank=True)
+    status = models.CharField(max_length=20,choices=Status.choices,default=Status.WATCHED,verbose_name="Статус")
+    review = models.TextField(blank=True, null=True,verbose_name='Отзыв')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('user', 'content')
-        verbose_name = "Рейтинг"
-        verbose_name_plural = "Рейтинги"
-
-    def __str__(self):
-        return f"{self.user.username} - {self.content.title} ({self.score})"
-
 

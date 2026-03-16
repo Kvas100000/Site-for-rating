@@ -1,12 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.db.models import Avg
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from pytils.translit import slugify
-
 from .models import Content, Movie, Game, Series, Rating
 from .forms import RatingForm, MovieForm, GameForm, SeriesForm
+from rest_framework import generics
+from .serializers import ScoreSerializer
+
+class PollsListAPI(generics.ListCreateAPIView ):
+    queryset = Rating.objects.all()
+    serializer_class = ScoreSerializer
 
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -37,24 +42,6 @@ class HomeView(ListView):
         context['current_type'] = self.request.GET.get('type', 'all')
         return context
 
-class MovieListView(ListView):
-    model = Movie
-    template_name = 'main_pages/catalog.html'
-    context_object_name = 'items'
-    extra_context = {'title': 'Фильмы', 'category': 'movie'}
-
-class GameListView(ListView):
-    model = Game
-    template_name = 'main_pages/catalog.html'
-    context_object_name = 'items'
-    extra_context = {'title': 'Игры', 'category': 'game'}
-
-class SeriesListView(ListView):
-    model = Series
-    template_name = 'main_pages/catalog.html'
-    context_object_name = 'items'
-    extra_context = {'title': 'Сериалы', 'category': 'series'}
-
 class ContentDetailView(DetailView):
     model = Content
     template_name = 'main_pages/detail.html'
@@ -62,30 +49,42 @@ class ContentDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['rating_form'] = RatingForm()
-        context['reviews'] = self.object.ratings.all().order_by('-created_at')
+        context['reviews'] = self.object.ratings.exclude(review="").order_by('-created_at')
 
         if self.request.user.is_authenticated:
-            context['user_rating'] = Rating.objects.filter(
+            user_rating = Rating.objects.filter(
                 user=self.request.user, content=self.object
             ).first()
+            context['user_rating'] = user_rating
+            if user_rating:
+                context['rating_form'] = RatingForm(instance=user_rating)
+            else:
+                context['rating_form'] = RatingForm()
+        else:
+            context['rating_form'] = RatingForm()
         return context
 
-class AddRatingView(LoginRequiredMixin, CreateView):
-    model = Rating
-    form_class = RatingForm
 
-    def form_valid(self, form):
-        content_obj = get_object_or_404(Content, slug=self.kwargs['slug'])
-        Rating.objects.update_or_create(
-            user=self.request.user,
-            content=content_obj,
-            defaults={
-                'score': form.cleaned_data['score'],
-                'review': form.cleaned_data['review']
-            }
+class AddRatingView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        content_obj = get_object_or_404(Content, slug=slug)
+        status = request.POST.get('status')
+        score = request.POST.get('score')
+        review = request.POST.get('review', '').strip()
+        rating, created = Rating.objects.get_or_create(
+            user=request.user,
+            content=content_obj
         )
-        return redirect(self.get_success_url())
+        rating.status = status
+        if status == 'PLANNING':
+            rating.score = None
+            rating.review = ""
+        else:
+            if score and score.isdigit():
+                rating.score = int(score)
+            rating.review = review
+        rating.save()
+        return redirect('main:content_detail', slug=slug)
 
     def get_success_url(self):
         return reverse('main:content_detail', kwargs={'slug': self.kwargs['slug']})
@@ -94,9 +93,11 @@ class MovieCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Movie
     form_class = MovieForm
     template_name = 'main_pages/manage_content.html'
-    success_url = reverse_lazy('main:movie_list')
+    success_url = reverse_lazy('main:home')
 
     def form_valid(self, form):
+        form.instance.category = 'MOVIE'
+
         if not form.instance.slug:
             form.instance.slug = slugify(form.instance.title)
         return super().form_valid(form)
@@ -105,9 +106,10 @@ class GameCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Game
     form_class = GameForm
     template_name = 'main_pages/manage_content.html'
-    success_url = reverse_lazy('main:game_list')
+    success_url = reverse_lazy('main:home')
 
     def form_valid(self, form):
+        form.instance.category = 'GAME'
         if not form.instance.slug:
             form.instance.slug = slugify(form.instance.title)
         return super().form_valid(form)
@@ -116,9 +118,10 @@ class SeriesCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Series
     form_class = SeriesForm
     template_name = 'main_pages/manage_content.html'
-    success_url = reverse_lazy('main:series_list')
+    success_url = reverse_lazy('main:home')
 
     def form_valid(self, form):
+        form.instance.category = 'SERIES'
         if not form.instance.slug:
             form.instance.slug = slugify(form.instance.title)
         return super().form_valid(form)

@@ -5,9 +5,6 @@ app_name = 'main'
 
 urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
-    path('movies/', views.MovieListView.as_view(), name='movie_list'),
-    path('games/', views.GameListView.as_view(), name='game_list'),
-    path('series/', views.SeriesListView.as_view(), name='series_list'),
 
     path('content/<slug:slug>/', views.ContentDetailView.as_view(), name='content_detail'),
     path('content/<slug:slug>/rate/', views.AddRatingView.as_view(), name='add_rating'),
@@ -21,4 +18,7 @@ urlpatterns = [
     path('series/edit/<slug:slug>/', views.SeriesUpdateView.as_view(), name='series_edit'),
 
     path('content/<slug:slug>/delete/', views.ContentDeleteView.as_view(), name='content_delete'),
+
+    path('api/score/', views.PollsListAPI.as_view(), name = 'polls-list-api')
+    
 ]

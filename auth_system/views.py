@@ -16,5 +16,13 @@ class ProfileUpdateView(LoginRequiredMixin,UpdateView):
     template_name = 'auth_system/profile_edit.html'
     success_url = reverse_lazy('auth_system:profile_edit')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ratings = self.request.user.user_ratings.select_related('content')
+        context['watched'] = ratings.filter(status='WATCHED')
+        context['planning'] = ratings.filter(status='PLANNING')
+        context['favorites'] = ratings.filter(status='FAVORITE')
+        return context
+
     def get_object(self, queryset=None):
         return self.request.user
