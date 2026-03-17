@@ -33,12 +33,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary',
     'auth_system',
     'main_pages',
     'rest_framework',
@@ -119,6 +121,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dbryrwych',
+    'API_KEY': '981767296325741',
+    'API_SECRET': 'hF_FWlEPkeyZFTsJov-2jgu_XMo'
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 LOGOUT_REDIRECT_URL = 'auth_system:login'
