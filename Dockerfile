@@ -17,6 +17,8 @@ COPY . /app/
 
 RUN python manage.py collectstatic --noinput
 
+RUN mkdir -p /app/media
+
 EXPOSE 8000
 
 ENTRYPOINT ["sh", "-c", "python manage.py migrate && gunicorn config.wsgi:application -b 0.0.0.0:8000"]
